@@ -1,57 +1,39 @@
-service: grs-dev
+service:
+  name: grs-service
+
+plugins:
+  - serverless-bundle
+  - serverless-pseudo-parameters
 
 provider:
-    name: aws
-    runtime: nodejs10.x
-    profile: jeferagudeloc
-    region: us-east-1
-    environment:
-        tableName: ${self:custom.tableName}
-    iamRoleStatements:
-        - Effect: Allow
-          Action:
-            - dynamodb:Query
-            - dynamodb:Scan
-            - dynamodb:GetItem
-            - dynamodb:PutItem
-            - dynamodb:UpdateItem
-            - dynamodb:DeleteItem
-          Resource: '*'
-plugins:
-    - serverless-s3-sync
-    - serverless-webpack
-
-package:
-    individually: true
-
-custom:
-    tableName: appointment-grs
-    s3Sync:
-        - bucketName: grs-devuploadbucket
-          localDir: UploadData
-
-functions:
-    createAppointment:
-        handler: lambdas/endpoints/createAppointment.handler
-        events:
-            - http:
-                  path: create-appointment/{ID}
-                  method: POST
-                  cors: true
+  name: aws
+  runtime: nodejs12.x
+  memorySize: 256
+  stage: ${opt:stage, 'dev'}
+  region: 'us-east-1'
+  environment:
+    APPOINTMENT_TABLE_NAME: ${self:custom.AppointmentTable.name}
+  iamRoleStatements:
+    - ${file(iam/AppointmentTableIAM.yml):AppointmentTableIAM}
 resources:
-    Resources:
-        DemoBucketUpload:
-            Type: AWS::S3::Bucket
-            Properties:
-                BucketName: grs-devuploadbucket
-        MyDynamoDbTable:
-            Type: AWS::DynamoDB::Table
-            Properties:
-                TableName: ${self:custom.tableName}
-                AttributeDefinitions:
-                    - AttributeName: ID
-                      AttributeType: S
-                KeySchema:
-                    - AttributeName: ID
-                      KeyType: HASH
-                BillingMode: PAY_PER_REQUEST
+  Resources:
+      AppointmentTable: ${file(resources/AppointmentTable.yml):AppointmentTable}
+functions:
+  createAppointment:
+    handler: src/handlers/createAppointment.handler
+    events:
+      - http:
+          method: POST
+          path: /appointment
+  getAppointment:
+    handler: src/handlers/getAppointment.handler
+    events:
+      - http:
+          method: GET
+          path: /appointment/{id}
+custom:
+  AppointmentTable:
+    name: !Ref AppointmentTable
+    arn: !GetAtt AppointmentTable.Arn
+  bundle:
+    linting: false

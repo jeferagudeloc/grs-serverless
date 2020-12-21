@@ -1,0 +1,26 @@
+AppointmentTable:
+  Type: AWS::DynamoDB::Table
+  Properties:
+    TableName: AppointmentTable-${self:provider.stage}
+    BillingMode: PAY_PER_REQUEST
+    AttributeDefinitions:
+      - AttributeName: id
+        AttributeType: S
+      - AttributeName: observation
+        AttributeType: S
+      - AttributeName: status
+        AttributeType: S
+      - AttributeName: date
+        AttributeType: S
+    KeySchema:
+      - AttributeName: id
+        KeyType: HASH
+    GlobalSecondaryIndexes:
+      - IndexName: observationAndDate
+        KeySchema:
+          - AttributeName: observation
+            KeyType: HASH
+          - AttributeName: date
+            KeyType: RANGE
+        Projection:
+          ProjectionType: ALL
