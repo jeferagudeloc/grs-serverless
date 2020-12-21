@@ -1,0 +1,57 @@
+service: grs-dev
+
+provider:
+    name: aws
+    runtime: nodejs10.x
+    profile: jeferagudeloc
+    region: us-east-1
+    environment:
+        tableName: ${self:custom.tableName}
+    iamRoleStatements:
+        - Effect: Allow
+          Action:
+            - dynamodb:Query
+            - dynamodb:Scan
+            - dynamodb:GetItem
+            - dynamodb:PutItem
+            - dynamodb:UpdateItem
+            - dynamodb:DeleteItem
+          Resource: '*'
+plugins:
+    - serverless-s3-sync
+    - serverless-webpack
+
+package:
+    individually: true
+
+custom:
+    tableName: appointment-grs
+    s3Sync:
+        - bucketName: grs-devuploadbucket
+          localDir: UploadData
+
+functions:
+    createAppointment:
+        handler: lambdas/endpoints/createAppointment.handler
+        events:
+            - http:
+                  path: create-appointment/{ID}
+                  method: POST
+                  cors: true
+resources:
+    Resources:
+        DemoBucketUpload:
+            Type: AWS::S3::Bucket
+            Properties:
+                BucketName: grs-devuploadbucket
+        MyDynamoDbTable:
+            Type: AWS::DynamoDB::Table
+            Properties:
+                TableName: ${self:custom.tableName}
+                AttributeDefinitions:
+                    - AttributeName: ID
+                      AttributeType: S
+                KeySchema:
+                    - AttributeName: ID
+                      KeyType: HASH
+                BillingMode: PAY_PER_REQUEST
