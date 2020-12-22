@@ -6,21 +6,19 @@ AppointmentTable:
     AttributeDefinitions:
       - AttributeName: id
         AttributeType: S
-      - AttributeName: observation
-        AttributeType: S
       - AttributeName: status
         AttributeType: S
-      - AttributeName: date
+      - AttributeName: endingAt
         AttributeType: S
     KeySchema:
       - AttributeName: id
         KeyType: HASH
     GlobalSecondaryIndexes:
-      - IndexName: observationAndDate
+      - IndexName: statusAndEndingAt
         KeySchema:
-          - AttributeName: observation
+          - AttributeName: status
             KeyType: HASH
-          - AttributeName: date
+          - AttributeName: endingAt
             KeyType: RANGE
         Projection:
           ProjectionType: ALL

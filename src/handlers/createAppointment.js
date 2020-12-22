@@ -3,7 +3,7 @@ import AWS from 'aws-sdk'
 import commonMidleware from '../lib/commonMiddleware'
 import createError from 'http-errors'
 
-const dynamodb = new AWS.DynamoDB.DocumentClient();
+const dynamodb = new AWS.DynamoDB.DocumentClient({endpoint: 'http://localhost:8000'});
 async function createAppointment(event, context) {
   
   const body = event.body;
@@ -17,7 +17,7 @@ async function createAppointment(event, context) {
 
   try {
     await dynamodb.put({
-      TableName: process.env.APPOINTMENT_TABLE_NAME,
+      TableName: 'AppointmentTable-test', // process.env.APPOINTMENT_TABLE_NAME,
       Item: appointment
     }).promise()  
   } catch (error) {

@@ -2,14 +2,14 @@ import AWS from 'aws-sdk'
 import commonMidleware from '../lib/commonMiddleware'
 import createError from 'http-errors'
 
-const dynamodb = new AWS.DynamoDB.DocumentClient();
+const dynamodb = new AWS.DynamoDB.DocumentClient({endpoint: 'http://localhost:8000'});
 
 export async function getAppointmentById(id) {
     let appointment;
 
     try {
         const result = await dynamodb.get({
-            TableName: process.env.APPOINTMENT_TABLE_NAME,
+            TableName: 'AppointmentTable-test', //process.env.APPOINTMENT_TABLE_NAME,
             Key: { id }
         }).promise();
         console.log("result:", result);
@@ -28,7 +28,6 @@ async function getAppointment(event, context) {
 
     const { id } = event.pathParameters;
     let appointment = await getAppointmentById(id);
-
     return {
         statusCode: 200,
         body: JSON.stringify({ appointment }),

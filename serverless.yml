@@ -4,12 +4,14 @@ service:
 plugins:
   - serverless-bundle
   - serverless-pseudo-parameters
+  - serverless-offline
+  - serverless-dynamodb-local
 
 provider:
   name: aws
   runtime: nodejs12.x
   memorySize: 256
-  stage: ${opt:stage, 'dev'}
+  stage: ${opt:stage, 'test'}
   region: 'us-east-1'
   environment:
     APPOINTMENT_TABLE_NAME: ${self:custom.AppointmentTable.name}
@@ -37,3 +39,9 @@ custom:
     arn: !GetAtt AppointmentTable.Arn
   bundle:
     linting: false
+  dynamodb:
+    stages:
+      - test
+  serverless-offline:
+    host: 0.0.0.0
+    httpPort: 8282

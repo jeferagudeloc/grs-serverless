@@ -21,6 +21,8 @@
     "@middy/http-json-body-parser": "^1.0.0",
     "aws-sdk": "^2.639.0",
     "http-errors": "^1.8.0",
+    "serverless-dynamodb-local": "^0.2.39",
+    "serverless-offline": "^6.8.0",
     "uuid": "^8.2.0"
   }
 }
